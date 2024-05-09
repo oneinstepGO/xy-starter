@@ -1,0 +1,16 @@
+-- 本地备份
+mysqldump -h ${DB_URL} -u ${USERNAME} -p ${DB_NAME} > backup.sql
+
+-- 不锁表dump
+mysqldump -h ${DB_URL} -u ${USERNAME} -p ${DB_NAME}
+--ignore-table=${IGNORE_TABLES} --single-transaction > backup.sql
+
+-- 锁表dump
+mysqldump -h ${DB_URL} -u ${USERNAME} -p ${DB_NAME} --lock-all-tables > backup.sql
+-- 创建数据库
+create database IF NOT EXISTS ${DB_NAME} default character set utf8mb4 collate utf8mb4_general_ci;
+USE ${DB_NAME};
+-- 导入数据
+mysql -h ${DB_URL} -u ${USERNAME} -p ${DB_NAME} < backup.sql
+
+

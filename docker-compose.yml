@@ -1,0 +1,71 @@
+version: '3'
+services:
+  xy-starter-mysql:
+    build:
+      context: ./
+      dockerfile: ./db/Dockerfile
+    environment:
+      MYSQL_ROOT_PASSWORD: root123!
+    restart: always
+    container_name: xy-starter-mysql
+    image: xy-starter-mysql
+    ports:
+      - 3306:3306
+    volumes:
+      - ./xy-starter-mysql:/var/lib/mysql
+    command: --lower_case_table_names=1
+
+  xy-starter-redis:
+    image: redis:5.0.4
+    restart: always
+    container_name: xy-starter-redis
+    ports:
+      - 6379:6379
+
+  xy-starter-main-admin:
+    build:
+      context: ./
+      dockerfile: ./xy-starter-main-admin/Dockerfile
+    restart: always
+    container_name: xy-starter-main-admin
+    environment:
+      - DB_URL=xy-starter-mysql
+      - DB_NAME=xy-starter
+      - DB_USERNAME=root
+      - DB_PWD=root123!
+      - REDIS_HOST=xy-starter-redis
+      - REDIS_PORT=6379
+      - REDIS_DATABASE=1
+    image: xy-starter-main-admin
+    ports:
+      - 8000:8000
+    depends_on:
+      - xy-starter-redis
+      - xy-starter-mysql
+    links:
+      - "xy-starter-redis"
+      - "xy-starter-mysql"
+
+  xy-starter-main-api:
+    build:
+      context: ./
+      dockerfile: ./xy-starter-main-api/Dockerfile
+    restart: always
+    container_name: xy-starter-main-api
+    environment:
+      - DB_URL=xy-starter-mysql
+      - DB_NAME=xy-starter
+      - DB_USERNAME=root
+      - DB_PWD=root123!
+      - REDIS_HOST=xy-starter-redis
+      - REDIS_PORT=6379
+      - REDIS_DATABASE=1
+    image: xy-starter-main-api
+    ports:
+      - 8001:8001
+    depends_on:
+      - xy-starter-redis
+      - xy-starter-mysql
+    links:
+      - "xy-starter-redis"
+      - "xy-starter-mysql"
