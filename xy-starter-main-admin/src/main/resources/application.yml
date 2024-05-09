@@ -56,7 +56,7 @@ xy:
     auth:
       jwtSecret: ub45svardn957gptyq3yfnw2utfovwqvtszf84kloxhrm2m7ld8ktu6i5mnln3uq
       jwtExpiration: 43200000
-      filterUrls: /admin/auth/**,/admin/sys/adminUser/export
+      filterUrls: /admin/auth/**
       wrongPasswordTimes: 5
       wrongPasswordLockTimeSeconds: 60
 
