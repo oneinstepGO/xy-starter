@@ -49,7 +49,7 @@ public class ApiAuthService {
     private PasswordEncoder passwordEncoder;
     @Resource
     private GoogleAuthenticatorService googleAuthenticatorService;
-    @Autowired
+    @Resource
     private CommonSessionService commonSessionService;
 
     @Logging(printArgs = true, printResult = true)

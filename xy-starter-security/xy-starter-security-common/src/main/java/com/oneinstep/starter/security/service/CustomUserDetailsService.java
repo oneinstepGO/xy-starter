@@ -1,8 +1,7 @@
-package com.oneinstep.starter.security.admin.service;
+package com.oneinstep.starter.security.service;
 
 import com.oneinstep.starter.security.bean.bo.TokenUserInfoBO;
 import com.oneinstep.starter.security.constant.LoginMethodEnum;
-import com.oneinstep.starter.security.service.AccountOwnerService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -15,9 +14,9 @@ import java.util.Optional;
 
 @Service
 @Slf4j
-public class SysUserDetailsService implements UserDetailsService {
+public class CustomUserDetailsService implements UserDetailsService {
 
-    @Resource(name = "sysAccountOwnerService")
+    @Resource
     private AccountOwnerService accountOwnerService;
 
     @Override
