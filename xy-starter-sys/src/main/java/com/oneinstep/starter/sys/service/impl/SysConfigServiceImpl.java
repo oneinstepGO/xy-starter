@@ -1,6 +1,8 @@
 package com.oneinstep.starter.sys.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.oneinstep.starter.core.utils.OneIPUtil;
 import com.oneinstep.starter.sys.constants.SysConfigKeyConstant;
 import com.oneinstep.starter.sys.bean.domain.SysConfig;
@@ -15,6 +17,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 系统配置service实现类
@@ -26,6 +29,12 @@ public class SysConfigServiceImpl extends ServiceImpl<SysConfigMapper, SysConfig
     @Resource
     private TransactionTemplate transactionTemplate;
 
+    private final LoadingCache<String, String> sysConfigCache = Caffeine.newBuilder()
+            .refreshAfterWrite(10, TimeUnit.SECONDS)
+            .expireAfterWrite(60, TimeUnit.SECONDS)
+            .maximumSize(10)
+            .build(this::getConfigValueByKey);
+
     @Override
     public boolean updateConfigByKey(Map<String, String> configMap) {
         if (MapUtils.isEmpty(configMap)) {
@@ -33,14 +42,14 @@ public class SysConfigServiceImpl extends ServiceImpl<SysConfigMapper, SysConfig
             return true;
         }
 
-        return Boolean.TRUE.equals(transactionTemplate.execute(status -> {
+        boolean ret = Boolean.TRUE.equals(transactionTemplate.execute(status -> {
             for (Map.Entry<String, String> entry : configMap.entrySet()) {
                 SysConfig sysConfig = new SysConfig();
                 sysConfig.setParamKey(entry.getKey());
                 sysConfig.setParamValue(entry.getValue());
                 sysConfig.setUpdateTime(LocalDateTime.now());
-                boolean ret = this.lambdaUpdate().eq(SysConfig::getParamKey, entry.getKey()).update(sysConfig);
-                if (!ret) {
+                boolean b = this.lambdaUpdate().eq(SysConfig::getParamKey, entry.getKey()).update(sysConfig);
+                if (!b) {
                     log.error("update sys config error, paramKey: {}, paramValue: {}", entry.getKey(), entry.getValue());
                     status.setRollbackOnly();
                     return false;
@@ -49,21 +58,21 @@ public class SysConfigServiceImpl extends ServiceImpl<SysConfigMapper, SysConfig
             return true;
         }));
 
-    }
+        if (ret) {
+            configMap.keySet().forEach(sysConfigCache::refresh);
+        }
+        return ret;
 
-    @Override
-    public String getConfigValueByKey(String key) {
-        return this.lambdaQuery().eq(SysConfig::getParamKey, key).one().getParamValue();
     }
 
     @Override
     public String getRunJobIp() {
-        return getConfigValueByKey(SysConfigKeyConstant.RUN_JOB_IP);
+        return getValueByKey(SysConfigKeyConstant.RUN_JOB_IP);
     }
 
     @Override
     public String getGlobalWhiteList() {
-        return getConfigValueByKey(SysConfigKeyConstant.GLOBAL_LOGIN_WHITE_LIST);
+        return getValueByKey(SysConfigKeyConstant.GLOBAL_LOGIN_WHITE_LIST);
     }
 
     @Override
@@ -99,4 +108,12 @@ public class SysConfigServiceImpl extends ServiceImpl<SysConfigMapper, SysConfig
         return false;
     }
 
+    @Override
+    public String getValueByKey(String key) {
+        return sysConfigCache.get(key);
+    }
+
+    private String getConfigValueByKey(String key) {
+        return this.lambdaQuery().eq(SysConfig::getParamKey, key).one().getParamValue();
+    }
 }

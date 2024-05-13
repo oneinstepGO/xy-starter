@@ -20,14 +20,6 @@ public interface SysConfigService extends IService<SysConfig> {
     boolean updateConfigByKey(Map<String, String> configMap);
 
     /**
-     * 根据key获取配置
-     *
-     * @param key 配置key
-     * @return 配置值
-     */
-    String getConfigValueByKey(@NotEmpty String key);
-
-    /**
      * 获取运行定时任务的ip
      *
      * @return ip
@@ -40,5 +32,7 @@ public interface SysConfigService extends IService<SysConfig> {
      * 是否开启 定时任务
      */
     boolean isEnableTask();
+
+    String getValueByKey(String key);
 
 }
