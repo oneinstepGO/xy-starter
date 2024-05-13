@@ -37,6 +37,13 @@ spring:
       port: ${REDIS_PORT:6379}
       #      password: ${REDIS_PWD:}
       database: ${REDIS_DATABASE:0}
+      jedis:
+        pool:
+          enabled: true
+          max-active: 50
+          max-idle: 50
+          min-idle: 0
+          time-between-eviction-runs: 30000
 
 mybatis-plus:
   configuration:
