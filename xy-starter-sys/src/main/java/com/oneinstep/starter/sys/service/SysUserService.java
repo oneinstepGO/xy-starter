@@ -12,6 +12,8 @@ import java.util.List;
  **/
 public interface SysUserService extends IService<SysUser> {
 
+    String test(Integer order);
+
     /**
      * 更新管理员
      *

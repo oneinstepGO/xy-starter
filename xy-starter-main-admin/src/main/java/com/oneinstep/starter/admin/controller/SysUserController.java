@@ -50,8 +50,6 @@ public class SysUserController {
     private SysUserService sysUserService;
     @Resource
     private PasswordEncoder passwordEncoder;
-    @Resource
-    private SysUserExportExcelHandler sysUserExportExcelHandler;
 
     /**
      * 分页查询管理员列表

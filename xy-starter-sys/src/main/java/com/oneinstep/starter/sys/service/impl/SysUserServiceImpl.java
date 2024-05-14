@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.oneinstep.starter.common.error.CommonCodeAndMsgError;
 import com.oneinstep.starter.core.log.annotition.Logging;
+import com.oneinstep.starter.core.redis.annotition.EnableDistributedLock;
+import com.oneinstep.starter.core.redis.annotition.LockParam;
 import com.oneinstep.starter.core.utils.BeanCopyUtils;
 import com.oneinstep.starter.security.constant.SecurityConstants;
 import com.oneinstep.starter.security.constant.SystemType;
@@ -28,6 +30,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 后台管理员用户
@@ -44,6 +47,18 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     private CommonSessionService commonSessionService;
     @Resource
     private SysMenuService sysMenuService;
+
+    @Override
+    @EnableDistributedLock(lockPrefix = "test:%d", lockTimeout = 10)
+    public String test(@LockParam(0) Integer order) {
+        log.info("test:{}", order);
+        try {
+            TimeUnit.SECONDS.sleep(5);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        return "test";
+    }
 
     @Override
     @Logging(printArgs = true, printResult = true)
