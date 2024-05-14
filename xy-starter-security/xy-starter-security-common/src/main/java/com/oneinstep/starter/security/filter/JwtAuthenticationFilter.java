@@ -67,7 +67,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 // get userId from token
                 Long userId = jwtTokenProvider.getUserId(jwt);
 
-                if (!jwtTokenStore.isTokenExistAndRight(systemType, userId, jwt)) {
+                String jwtFromRedis = jwtTokenStore.getJwtToken(systemType, userId);
+                if (StringUtils.isBlank(jwtFromRedis) || !jwt.equals(jwtFromRedis)) {
                     log.info("token is expired");
                     filterChain.doFilter(request, response);
                     return;

@@ -1,3 +1,3 @@
 ### 系统配置列表
 GET http://localhost:8000/admin/sys/config/listAll
-Authorization: eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwic3lzdGVtVHlwZSI6MSwiaWF0IjoxNzE1NTg1MTk5LCJleHAiOjE3MTU2MjgzOTl9.PNYFAwDG5d5Lc_CfJ-u-I3xXis23pfCdeqdpI0riNASiRtpDanpynUdolJAjNLcq
+Authorization: eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwic3lzdGVtVHlwZSI6MSwiaWF0IjoxNzE1NzIyOTcwLCJleHAiOjE3MTU3NjYxNzB9.nkL97uH1CkHa0tTeJQPoIuw7vDxANwzQqyDACn8nn-jcoBTgsiwvoOzbs6-hxPwu

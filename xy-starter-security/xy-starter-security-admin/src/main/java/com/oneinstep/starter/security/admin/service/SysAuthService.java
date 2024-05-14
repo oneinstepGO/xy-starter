@@ -148,12 +148,10 @@ public class SysAuthService {
     public void logout(String token) {
         if (StringUtils.isNotBlank(token) && jwtTokenProvider.validateToken(token)) {
             Long userId = jwtTokenProvider.getUserId(token);
-            if (jwtTokenStore.isTokenExistAndRight(SystemType.ADMIN, userId, token)) {
-                log.info("token is valid, do logout.");
+            String jwtFromRedis = jwtTokenStore.getJwtToken(SystemType.ADMIN, userId);
+            if (StringUtils.isNotBlank(jwtFromRedis)  && StringUtils.equals(token, jwtFromRedis)) {
+                log.info("token is expired");
                 commonSessionService.deleteToken(SystemType.ADMIN, userId);
-                return;
-            } else {
-                log.info("token is expired in redis.");
             }
         }
         log.info("logout >>> no toke or token is expired");

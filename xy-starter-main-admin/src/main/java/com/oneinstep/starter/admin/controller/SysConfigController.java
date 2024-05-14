@@ -38,7 +38,7 @@ public class SysConfigController {
     @Operation(summary = "系统配置列表", description = "获取所有的系统配置，无分页")
     @Logging(printArgs = true, printError = true)
     public Result<Map<String, String>> listAll() {
-        List<SysConfig> boList = sysConfigService.list();
+        List<SysConfig> boList = sysConfigService.listAllWithCache();
         if (CollectionUtils.isEmpty(boList)) {
             return Result.ok(new HashMap<>());
         }

@@ -4,12 +4,20 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.oneinstep.starter.sys.bean.domain.SysConfig;
 import jakarta.validation.constraints.NotEmpty;
 
+import java.util.List;
 import java.util.Map;
 
 /**
  * 系统配置
  **/
 public interface SysConfigService extends IService<SysConfig> {
+
+    /**
+     * 获取所有的系统配置
+     *
+     * @return 所有的系统配置
+     */
+    List<SysConfig> listAllWithCache();
 
     /**
      * 根据key 更新配置
