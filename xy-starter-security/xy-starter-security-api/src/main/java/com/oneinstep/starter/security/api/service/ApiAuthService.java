@@ -18,7 +18,6 @@ import jakarta.annotation.Resource;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -170,20 +169,13 @@ public class ApiAuthService {
     public void logout(String token) {
         if (StringUtils.isNotBlank(token) && jwtTokenProvider.validateToken(token)) {
             Long userId = jwtTokenProvider.getUserId(token);
-            if (jwtTokenStore.isTokenExistAndRight(SystemType.ORDINARY, userId, token)) {
-                log.info("token is valid, do logout.");
-                deleteToken(userId);
-                return;
-            } else {
-                log.info("token is expired in redis.");
+            String jwtFromRedis = jwtTokenStore.getJwtToken(SystemType.ADMIN, userId);
+            if (StringUtils.isNotBlank(jwtFromRedis)  && StringUtils.equals(token, jwtFromRedis)) {
+                log.info("token is expired");
+                commonSessionService.deleteToken(SystemType.ADMIN, userId);
             }
         }
         log.info("logout >>> no toke or token is expired");
-    }
-
-    private void deleteToken(Long userId) {
-        jwtTokenStore.removeToken(SystemType.ORDINARY, userId);
-        tokenUserInfoStoreService.deleteUserInfo(SystemType.ORDINARY, userId);
     }
 
     /**
