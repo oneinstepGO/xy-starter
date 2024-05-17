@@ -3,11 +3,7 @@ package com.oneinstep.starter.security.config;
 import com.oneinstep.starter.security.authorize.CustomAccessDeniedHandler;
 import com.oneinstep.starter.security.filter.JwtAuthenticationFilter;
 import com.oneinstep.starter.security.jwt.JwtAuthenticationEntryPoint;
-import com.oneinstep.starter.security.jwt.JwtTokenProvider;
 import com.oneinstep.starter.security.properties.AuthProperties;
-import com.oneinstep.starter.security.service.AccountOwnerService;
-import com.oneinstep.starter.security.service.TokenUserInfoStoreService;
-import com.oneinstep.starter.security.service.JwtTokenStore;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,26 +28,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SpringSecurityConfig {
 
     @Resource
-    private AccountOwnerService accountOwnerService;
-    @Resource
-    private JwtTokenProvider jwtTokenProvider;
-    @Resource
     private JwtAuthenticationEntryPoint unauthorizedHandler;
-    @Resource
-    private JwtTokenStore jwtTokenStore;
-    @Resource
-    private TokenUserInfoStoreService tokenUserInfoStoreService;
     @Resource
     private AuthProperties authProperties;
     @Resource
     private UserDetailsService userDetailsService;
     @Resource
     private CustomAccessDeniedHandler customAccessDeniedHandler;
-
-    @Bean
-    public JwtAuthenticationFilter authenticationJwtTokenFilter() {
-        return new JwtAuthenticationFilter(jwtTokenProvider, jwtTokenStore, tokenUserInfoStoreService, accountOwnerService);
-    }
+    @Resource
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
     public static PasswordEncoder passwordEncoder() {
@@ -82,7 +67,7 @@ public class SpringSecurityConfig {
 
         http.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
         http.authenticationProvider(authenticationProvider());
-        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

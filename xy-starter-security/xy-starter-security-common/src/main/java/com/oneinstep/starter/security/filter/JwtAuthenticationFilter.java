@@ -8,6 +8,7 @@ import com.oneinstep.starter.security.service.AccountOwnerService;
 import com.oneinstep.starter.security.service.JwtTokenStore;
 import com.oneinstep.starter.security.service.TokenUserInfoStoreService;
 import com.oneinstep.starter.security.utils.AuthorHeaderUtil;
+import jakarta.annotation.Resource;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,23 +32,14 @@ import java.io.IOException;
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtTokenProvider jwtTokenProvider;
-
-    private final JwtTokenStore jwtTokenStore;
-
-    private final TokenUserInfoStoreService tokenUserInfoStoreService;
-
-    private final AccountOwnerService accountOwnerService;
-
-    public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider,
-                                   JwtTokenStore jwtTokenStore,
-                                   TokenUserInfoStoreService tokenUserInfoStoreService,
-                                   AccountOwnerService accountOwnerService) {
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.jwtTokenStore = jwtTokenStore;
-        this.tokenUserInfoStoreService = tokenUserInfoStoreService;
-        this.accountOwnerService = accountOwnerService;
-    }
+    @Resource
+    private JwtTokenProvider jwtTokenProvider;
+    @Resource
+    private JwtTokenStore jwtTokenStore;
+    @Resource
+    private TokenUserInfoStoreService tokenUserInfoStoreService;
+    @Resource
+    private AccountOwnerService accountOwnerService;
 
     @Override
     protected void doFilterInternal(@NotNull HttpServletRequest request,

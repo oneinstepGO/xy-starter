@@ -10,6 +10,7 @@ import com.oneinstep.starter.security.service.AccountOwnerService;
 import jakarta.annotation.Resource;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -17,8 +18,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-@Service("apiAccountOwnerService")
+@Service
 @Slf4j
+@ConditionalOnProperty(name = "spring.application.name", havingValue = "xy-starter-api")
 public class ApiAccountOwnerServiceImpl implements AccountOwnerService {
 
     @Resource
