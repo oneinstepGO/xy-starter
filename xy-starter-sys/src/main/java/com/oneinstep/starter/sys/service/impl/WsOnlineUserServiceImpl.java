@@ -1,6 +1,6 @@
 package com.oneinstep.starter.sys.service.impl;
 
-import com.oneinstep.starter.core.utils.OneIPUtil;
+import com.oneinstep.starter.core.utils.IPUtil;
 import com.oneinstep.starter.sys.service.WsOnlineUserService;
 import com.oneinstep.starter.sys.ws.LocalWsUserSessionHolder;
 import jakarta.annotation.Resource;
@@ -37,7 +37,7 @@ public class WsOnlineUserServiceImpl implements WsOnlineUserService {
         scoredSortedSet.add(System.currentTimeMillis(), userId);
 
         RMap<String, String> map = redissonClient.getMap(ANDROID_ONLINE_USER_CONNECT_HASH);
-        map.put(userId, OneIPUtil.getLocalIPAddress());
+        map.put(userId, IPUtil.getLocalIPAddress());
     }
 
     @Override
@@ -47,7 +47,7 @@ public class WsOnlineUserServiceImpl implements WsOnlineUserService {
         scoredSortedSet.add(System.currentTimeMillis(), userId);
 
         RMap<String, String> map = redissonClient.getMap(H5_ONLINE_USER_CONNECT_HASH);
-        map.put(userId, OneIPUtil.getLocalIPAddress());
+        map.put(userId, IPUtil.getLocalIPAddress());
     }
 
     @Override

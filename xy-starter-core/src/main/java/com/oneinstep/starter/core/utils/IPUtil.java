@@ -15,7 +15,7 @@ import java.net.UnknownHostException;
  */
 @UtilityClass
 @Slf4j
-public class OneIPUtil {
+public class IPUtil {
     /**
      * 获取请求的IP地址
      *

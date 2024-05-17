@@ -2,7 +2,7 @@ package com.oneinstep.starter.sys.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.oneinstep.starter.common.cache.CacheConstants;
-import com.oneinstep.starter.core.utils.OneIPUtil;
+import com.oneinstep.starter.core.utils.IPUtil;
 import com.oneinstep.starter.sys.constants.SysConfigKeyConstant;
 import com.oneinstep.starter.sys.bean.domain.SysConfig;
 import com.oneinstep.starter.sys.mapper.SysConfigMapper;
@@ -88,7 +88,7 @@ public class SysConfigServiceImpl extends ServiceImpl<SysConfigMapper, SysConfig
             return false;
         }
 
-        String localIp = OneIPUtil.getLocalIPAddress();
+        String localIp = IPUtil.getLocalIPAddress();
         log.info("localIp >>>>>>> {}", localIp);
         if (StringUtils.isBlank(localIp)) {
             log.error("localIp is blank");

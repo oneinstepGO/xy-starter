@@ -61,7 +61,7 @@ xy:
     auth:
       jwtSecret: xsrla9syqycbnyr9xb4sbnx2nbt5vp5cq3yeafqoihjefxdlhvs3hyvg6yk6nfij
       jwtExpiration: 43200000
-      filterUrls: /api/auth/**
+      filterUrls: /api/auth/**,/api/user/register
       wrongPasswordTimes: 5
       wrongPasswordLockTimeSeconds: 60
 

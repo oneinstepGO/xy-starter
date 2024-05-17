@@ -1,4 +1,4 @@
-package com.oneinstep.starter.business.api.bean.dto;
+package com.oneinstep.starter.business.api.bean.dto.res;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;

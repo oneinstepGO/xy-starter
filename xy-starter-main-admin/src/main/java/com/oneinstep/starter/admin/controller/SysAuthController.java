@@ -2,7 +2,7 @@ package com.oneinstep.starter.admin.controller;
 
 import com.oneinstep.starter.core.log.annotition.Logging;
 import com.oneinstep.starter.core.response.Result;
-import com.oneinstep.starter.core.utils.OneIPUtil;
+import com.oneinstep.starter.core.utils.IPUtil;
 import com.oneinstep.starter.core.validation.ChangeOtherPasswordGroup;
 import com.oneinstep.starter.core.validation.ChangeOwnPasswordGroup;
 import com.oneinstep.starter.security.admin.service.SysAuthService;
@@ -50,7 +50,7 @@ public class SysAuthController {
     @Operation(summary = "后台系统登录", description = "后台系统登录")
     @Logging(printArgs = true, printResult = true, printError = true)
     public Result<LoginResultDTO> adminLogin(@Valid @RequestBody LoginReqDTO loginReqDTO, HttpServletRequest request) {
-        loginReqDTO.setLoginIp(OneIPUtil.getRemoteIpAddress(request));
+        loginReqDTO.setLoginIp(IPUtil.getRemoteIpAddress(request));
         loginReqDTO.setLoginMethod(LoginMethodEnum.USERNAME_PASSWORD);
         return Result.ok(authService.login(loginReqDTO));
     }

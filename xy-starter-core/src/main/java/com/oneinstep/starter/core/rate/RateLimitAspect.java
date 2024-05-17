@@ -1,7 +1,7 @@
 package com.oneinstep.starter.core.rate;
 
 import com.oneinstep.starter.core.error.BaseCodeAndMsgError;
-import com.oneinstep.starter.core.utils.OneIPUtil;
+import com.oneinstep.starter.core.utils.IPUtil;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +31,7 @@ public class RateLimitAspect {
     public void checkRateLimit(JoinPoint joinPoint, RateLimit rateLimit) {
         String methodName = joinPoint.getSignature().getName();
         log.info("请求频率限制，methodName:{}, rateLimit:{}", methodName, rateLimit.value());
-        String ipAddress = OneIPUtil.getRemoteIpAddress(request);
+        String ipAddress = IPUtil.getRemoteIpAddress(request);
         String key = "rate_limit:" + ipAddress + ":" + methodName;
 
         RRateLimiter rateLimiter = redissonClient.getRateLimiter(key);

@@ -2,7 +2,7 @@ package com.oneinstep.starter.api.controller;
 
 import com.oneinstep.starter.core.log.annotition.Logging;
 import com.oneinstep.starter.core.response.Result;
-import com.oneinstep.starter.core.utils.OneIPUtil;
+import com.oneinstep.starter.core.utils.IPUtil;
 import com.oneinstep.starter.core.validation.ChangeOwnPasswordGroup;
 import com.oneinstep.starter.security.api.service.ApiAuthService;
 import com.oneinstep.starter.security.bean.bo.TokenUserInfoBO;
@@ -47,7 +47,7 @@ public class ApiAuthController {
     @PostMapping("login")
     @Logging(printArgs = true, printResult = true, printError = true)
     public Result<LoginResultDTO> login(@Valid @RequestBody LoginReqDTO loginReqDTO, HttpServletRequest request) {
-        loginReqDTO.setLoginIp(OneIPUtil.getRemoteIpAddress(request));
+        loginReqDTO.setLoginIp(IPUtil.getRemoteIpAddress(request));
         return Result.ok(apiAuthService.login(loginReqDTO));
     }
 

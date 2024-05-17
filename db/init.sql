@@ -157,7 +157,7 @@ CREATE TABLE `t_user`
 (
     `user_id`         bigint       NOT NULL COMMENT '用户ID',
     `nick_name`       varchar(50)  NOT NULL COMMENT '昵称',
-    `real_name`       varchar(50)  NOT NULL COMMENT '真实姓名',
+    `real_name`       varchar(50)  NULL COMMENT '真实姓名',
     `gender`          char(1)               DEFAULT 'M' COMMENT '性别，M(男) or F(女)',
     `birthday`        date                  DEFAULT NULL COMMENT '生日，例如：2009-11-27',
     `avatar`          varchar(100) NULL     DEFAULT 'https://api.multiavatar.com/Starcrasher.png' COMMENT '头像',

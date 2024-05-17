@@ -1,7 +1,7 @@
 package com.oneinstep.starter.api.controller;
 
 import com.oneinstep.starter.business.api.bean.domain.User;
-import com.oneinstep.starter.business.api.bean.dto.UserDTO;
+import com.oneinstep.starter.business.api.bean.dto.res.UserDTO;
 import com.oneinstep.starter.business.api.service.UserService;
 import com.oneinstep.starter.core.response.Result;
 import com.oneinstep.starter.core.utils.BeanCopyUtils;

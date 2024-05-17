@@ -2,7 +2,7 @@ package com.oneinstep.starter.sys.ws.handler;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
-import com.oneinstep.starter.core.utils.OneIPUtil;
+import com.oneinstep.starter.core.utils.IPUtil;
 import com.oneinstep.starter.core.utils.UriUtil;
 import com.oneinstep.starter.sys.constants.WsConstant;
 import com.oneinstep.starter.sys.enums.ws.WsClientMsgTypeEnum;
@@ -293,7 +293,7 @@ public class DemoWebSocketHandler implements WebSocketHandler {
             h5OnlineUserList.forEach(userId -> executorService.execute(() -> {
 
                 String h5UserConnectServer = wsOnlineUserService.getH5UserConnectServer(userId);
-                if (OneIPUtil.getLocalIPAddress().equals(h5UserConnectServer)) {
+                if (IPUtil.getLocalIPAddress().equals(h5UserConnectServer)) {
                     WebSocketSession session = LocalWsUserSessionHolder.getH5LoginUserSession(userId);
                     if (session == null || !session.isOpen()) {
                         log.info("redis 中本机用户:{} h5在线，但session已关闭，清理redis key", userId);
@@ -320,7 +320,7 @@ public class DemoWebSocketHandler implements WebSocketHandler {
             androidOnlineUserList.forEach(userId -> executorService.execute(() -> {
 
                 String androidUserConnectServer = wsOnlineUserService.getAndroidUserConnectServer(userId);
-                if (OneIPUtil.getLocalIPAddress().equals(androidUserConnectServer)) {
+                if (IPUtil.getLocalIPAddress().equals(androidUserConnectServer)) {
                     WebSocketSession session = LocalWsUserSessionHolder.getAndroidLoginUserSession(userId);
                     if (session == null || !session.isOpen()) {
                         log.info("redis 中本机用户:{} android 在线，但session已关闭，清理redis key", userId);
