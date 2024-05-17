@@ -1,5 +1,6 @@
 package com.oneinstep.starter.security.config;
 
+import com.oneinstep.starter.security.authorize.CustomAccessDeniedHandler;
 import com.oneinstep.starter.security.filter.JwtAuthenticationFilter;
 import com.oneinstep.starter.security.jwt.JwtAuthenticationEntryPoint;
 import com.oneinstep.starter.security.jwt.JwtTokenProvider;
@@ -44,6 +45,8 @@ public class SpringSecurityConfig {
     private AuthProperties authProperties;
     @Resource
     private UserDetailsService userDetailsService;
+    @Resource
+    private CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
     public JwtAuthenticationFilter authenticationJwtTokenFilter() {
@@ -66,7 +69,10 @@ public class SpringSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable().cors();
-        http.exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
+        http.exceptionHandling(exception -> {
+                    exception.accessDeniedHandler(customAccessDeniedHandler);
+                    exception.authenticationEntryPoint(unauthorizedHandler);
+                })
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
                         auth

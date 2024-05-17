@@ -115,23 +115,23 @@ public class RestExceptionHandler {
     @Order(5)
     @ExceptionHandler({OneBaseException.class})
     @ResponseStatus(HttpStatus.OK)
-    public Result<Void> handleLightBaseException(OneBaseException e) {
+    public Result<Void> handleOneBaseException(OneBaseException e) {
         log.error(e.getMessage());
         return Result.error(e.getCode(), e.getMessage());
     }
 
-    /**
-     * 处理 Throwable
-     *
-     * @param e Throwable 异常
-     * @return FAILURE
-     */
-    @Order(102)
-    @ExceptionHandler({RuntimeException.class, Exception.class, Throwable.class})
-    @ResponseStatus(HttpStatus.OK)
-    public Result<Void> handleThrowable(Throwable e) {
-        log.error(e.getMessage(), e);
-        return Result.error(BaseCodeAndMsgError.FAILURE);
-    }
+//    /**
+//     * 处理 Throwable
+//     *
+//     * @param e Throwable 异常
+//     * @return FAILURE
+//     */
+//    @Order(1000000)
+//    @ExceptionHandler({RuntimeException.class, Exception.class, Throwable.class})
+//    @ResponseStatus(HttpStatus.OK)
+//    public Result<Void> handleThrowable(Throwable e) {
+//        log.error(e.getMessage(), e);
+//        return Result.error(BaseCodeAndMsgError.FAILURE);
+//    }
 
 }

@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.oneinstep.starter.common.error.CommonCodeAndMsgError;
+import com.oneinstep.starter.core.constants.CommonConstant;
 import com.oneinstep.starter.core.log.annotition.Logging;
 import com.oneinstep.starter.core.redis.annotition.EnableDistributedLock;
 import com.oneinstep.starter.core.redis.annotition.LockParam;
@@ -28,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -210,10 +212,20 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public List<String> getPermsByUserId(Long userId) {
+        List<String> permsList;
         if (Objects.equals(SecurityConstants.SUPER_ADMIN_USER_ID, userId)) {
-            return sysMenuService.lambdaQuery().eq(SysMenu::getType, MenuTypeEnum.BUTTON.getCode()).list().stream()
+            permsList = sysMenuService.lambdaQuery().eq(SysMenu::getType, MenuTypeEnum.BUTTON.getCode()).list().stream()
                     .map(SysMenu::getPerms).filter(StringUtils::isNotBlank).distinct().toList();
+        } else {
+            permsList = sysMenuService.queryPermsByUserId(userId).stream().filter(StringUtils::isNotBlank).distinct().toList();
         }
-        return sysMenuService.queryPermsByUserId(userId);
+
+        return permsList.stream().flatMap(perms -> {
+                    if (StringUtils.isBlank(perms)) {
+                        return null;
+                    }
+                    return Arrays.stream(perms.trim().split(CommonConstant.COMMA));
+                }
+        ).filter(StringUtils::isNotBlank).distinct().toList();
     }
 }

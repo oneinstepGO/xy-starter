@@ -121,24 +121,8 @@ public class Result<T> implements Serializable {
         return response;
     }
 
-    public static <T> Result<T> illegalArgument() {
-        Result<T> response = new Result<>();
-        response.setCode(BaseCodeAndMsgError.ILLEGAL_ARGUMENT.getCode());
-        response.setMessage(BaseCodeAndMsgError.ILLEGAL_ARGUMENT.getMessage());
-        response.setReqId(MDC.get(CommonConstant.REQUEST_ID));
-        return response;
-    }
-
     public boolean isSuccess() {
         return BaseCodeAndMsgError.SUCCESS.getCode().equals(this.getCode());
-    }
-
-    public boolean isFail() {
-        return !isSuccess();
-    }
-
-    public boolean isErrorWithoutCode() {
-        return BaseCodeAndMsgError.FAILURE.getCode().equals(this.getCode());
     }
 
 }

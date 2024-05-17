@@ -47,6 +47,6 @@ public interface SysMenuMapper extends BaseMapper<SysMenu> {
                     from t_sys_user_role ur
                              LEFT JOIN t_sys_role_menu rm on ur.role_id = rm.role_id
                              LEFT JOIN t_sys_menu m on rm.menu_id = m.id and m.type = 2
-                    where ur.sys_user_id = #{userId} and m.perms is not null and m.perms != '' order by id""")
+                    where ur.sys_user_id = #{userId} and m.perms is not null and m.perms != ''""")
     List<String> queryPermsByUserId(@NotNull Long userId);
 }

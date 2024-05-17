@@ -2,7 +2,6 @@ package com.oneinstep.starter.admin.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.oneinstep.starter.business.admin.export.SysUserExportExcelHandler;
 import com.oneinstep.starter.core.dao.PageConverter;
 import com.oneinstep.starter.core.dao.PageData;
 import com.oneinstep.starter.core.log.annotition.Logging;
@@ -27,6 +26,7 @@ import jakarta.annotation.Resource;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -40,7 +40,7 @@ import static com.oneinstep.starter.core.error.SecurityCodeAndMsgError.NOT_LOGIN
  * 管理员管理
  **/
 @RestController
-@RequestMapping("/admin/sys/adminUser")
+@RequestMapping("/admin/sys/sysUser")
 @Tag(name = "管理员 管理")
 @Slf4j
 @Validated
@@ -60,6 +60,7 @@ public class SysUserController {
     @GetMapping("list")
     @Operation(summary = "管理员列表", description = "管理员 分页列表")
     @Logging(printArgs = true, printError = true)
+    @PreAuthorize("hasAuthority('admin:sys:sysUser:list')")
     public Result<PageData<AdminUserDTO>> list(QueryAdminUserOption option) {
 
         TokenUserInfoBO accountOwnerBO = AuthedUserInfoContext.get();
@@ -99,6 +100,7 @@ public class SysUserController {
     @PostMapping("save")
     @Operation(summary = "新增 管理员", description = "新增 管理员")
     @Logging(printArgs = true, printResult = true, printError = true)
+    @PreAuthorize("hasAuthority('admin:sys:sysUser:save') && hasAuthority('admin:sys:role:list')")
     public Result<Void> save(@RequestBody @Validated({SaveGroup.class, AdminUserGroup.class}) SaveOrUpdateAdminUserOption option) {
 
         SysUserBO adminUserBO = BeanCopyUtils.copy(option, SysUserBO.class);
@@ -125,6 +127,7 @@ public class SysUserController {
     @PostMapping("update")
     @Logging(printArgs = true, printResult = true, printError = true)
     @Operation(summary = "修改 管理员", description = "修改 管理员")
+    @PreAuthorize("hasAuthority('admin:sys:sysUser:update') && hasAuthority('admin:sys:role:list')")
     public Result<Void> update(@RequestBody @Validated({UpdateGroup.class, AdminUserGroup.class}) SaveOrUpdateAdminUserOption option) {
         return sysUserService.updateUser(BeanCopyUtils.copy(option, SysUserBO.class)) ? Result.ok() : Result.error();
     }
@@ -138,6 +141,7 @@ public class SysUserController {
     @PostMapping("delete")
     @Logging(printArgs = true, printResult = true, printError = true)
     @Operation(summary = "删除 管理员", description = "删除 管理员")
+    @PreAuthorize("hasAuthority('admin:sys:sysUser:delete')")
     public Result<Void> delete(@RequestBody @NotNull @Validated({DeleteGroup.class}) SaveOrUpdateAdminUserOption option) {
         return sysUserService.deleteUser(option.getUserId()) ? Result.ok() : Result.error();
     }

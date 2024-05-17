@@ -40,6 +40,8 @@
     - 认证基于 jwt、权限校验、用户信息获取、权限信息获取、用户信息存储、权限信息存储
   - 2.3.2、`xy-starter-security-admin` 为后台管理系统安全模块，包含后台管理系统的安全配置和常用认证、权限校验方法
     - 后台管理系统使用 用户名 + 密码 登陆，登陆后使用 jwt 进行认证，基于 角色-权限 进行权限控制
+    - 接口方法上使用  @PreAuthorize("hasRole('YOUR_ROLE_NAME')") 控制需要的角色
+    - 接口方法上使用  @PreAuthorize("hasAuthority('YOUR_AUTHORITY_NAME1') && hasAuthority('YOUR_AUTHORITY_NAME2')") 控制需要的权限
   - 2.3.3、`xy-starter-security-api` 为前端接口安全模块，包含前端接口的安全配置和常用认证、权限校验方法
     - 前端接口使用 多种登陆方式，登陆后使用 jwt 进行认证，没有权限控制
 - 2.4、`xy-starter-sys` 为后台管理系统通用 用户、角色、权限、菜单等通用代码，基本不用改动
