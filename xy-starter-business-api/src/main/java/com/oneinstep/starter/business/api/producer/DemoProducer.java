@@ -1,7 +1,10 @@
 package com.oneinstep.starter.business.api.producer;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.oneinstep.starter.core.mq.kafka.config.CustomKafkaProperties;
 import com.oneinstep.starter.core.utils.DateTimeUtil;
+import com.oneinstep.starter.core.utils.SnowflakeGenerator;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -33,11 +36,16 @@ public class DemoProducer {
         properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         properties.put(ProducerConfig.CLIENT_ID_CONFIG, "client-id-demo");
         producer = new KafkaProducer<>(properties);
+        SnowflakeGenerator snowflakeGenerator = SnowflakeGenerator.getInstance();
         while (true) {
             // 消费消息
             try {
+                JSONObject json = new JSONObject();
+                long id = snowflakeGenerator.generateId();
+                json.put("id", id);
                 String message = "message-demo-" + DateTimeUtil.formatDateTime_YYYY_MM_DD_HH_MM_SS(LocalDateTime.now());
-                Future<RecordMetadata> future = producer.send(new ProducerRecord<>("kafka-topic-demo", message, message));
+                json.put("message", message);
+                Future<RecordMetadata> future = producer.send(new ProducerRecord<>("kafka-topic-demo", String.valueOf(id), JSON.toJSONString(json)));
                 RecordMetadata recordMetadata = future.get();
                 int partition = recordMetadata.partition();
                 long offset = recordMetadata.offset();

@@ -160,6 +160,11 @@ public abstract class AbstractKafkaConsumer {
                         getLogger().info("Received records from partition: {}", tp.partition());
                         // 每个分区的消息
                         List<ConsumerRecord<String, String>> partitionRecords = records.records(tp);
+                        try {
+                            Thread.sleep(200);
+                        } catch (InterruptedException e) {
+                            getLogger().error("KafkaConsumerThread sleep error", e);
+                        }
                         for (ConsumerRecord<String, String> partitionRecord : partitionRecords) {
                             try {
                                 getLogger().info("Received message: {} from partition: {} offset: {}", partitionRecord.value(), partitionRecord.partition(), partitionRecord.offset());
