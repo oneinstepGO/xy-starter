@@ -10,14 +10,14 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class DemoConsumer extends AbstractKafkaConsumer {
+public class DemoRetryConsumer extends AbstractKafkaConsumer {
 
     @Resource
     private RedissonClient redissonClient;
 
     @Override
     public String getTopic() {
-        return "kafka-topic-demo";
+        return "kafka-topic-demo.RETRY";
     }
 
     @Override
@@ -47,7 +47,7 @@ public class DemoConsumer extends AbstractKafkaConsumer {
 
     @Override
     public int getThreadNum() {
-        return 3;
+        return 1;
     }
 
     @Override
@@ -66,22 +66,7 @@ public class DemoConsumer extends AbstractKafkaConsumer {
     }
 
     @Override
-    public long maxDelayMs() {
-        return 30000L;
-    }
-
-    @Override
-    public long initDelayMs() {
-        return 3000L;
-    }
-
-    @Override
-    public int maxRetryCount() {
-        return 5;
-    }
-
-    @Override
-    public boolean needRetry() {
+    public boolean isRetryConsumer() {
         return true;
     }
 

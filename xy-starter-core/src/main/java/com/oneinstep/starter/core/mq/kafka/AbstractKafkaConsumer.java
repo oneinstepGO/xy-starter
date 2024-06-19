@@ -1,8 +1,13 @@
 package com.oneinstep.starter.core.mq.kafka;
 
 import cn.hutool.core.thread.ThreadFactoryBuilder;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.google.common.collect.Lists;
+import com.oneinstep.starter.core.mq.kafka.bean.RetryMessage;
 import com.oneinstep.starter.core.mq.kafka.config.CustomKafkaProperties;
+import com.oneinstep.starter.core.mq.kafka.producer.KafkaProducerInstance;
+import com.oneinstep.starter.core.utils.RetryDelayCalculator;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
@@ -11,12 +16,14 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -24,12 +31,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Kafka 消费者抽象类
  */
 @Component
-@ConditionalOnClass({KafkaConsumer.class})
 @ConditionalOnProperty(prefix = "xy.starter.kafka", name = "enable", havingValue = "true")
 public abstract class AbstractKafkaConsumer {
 
     @Resource
     private CustomKafkaProperties kafkaProperties;
+    @Resource
+    private KafkaProducerInstance kafkaProducerInstance;
 
     /**
      * 获取 Topic
@@ -79,6 +87,50 @@ public abstract class AbstractKafkaConsumer {
      * @return 日志
      */
     public abstract Logger getLogger();
+
+    /**
+     * 是否重试
+     *
+     * @return 是否重试
+     */
+    public boolean needRetry() {
+        return false;
+    }
+
+    /**
+     * 最大重试次数
+     *
+     * @return
+     */
+    public int maxRetryCount() {
+        return 3;
+    }
+
+    /**
+     * 初始化延迟时间
+     *
+     * @return
+     */
+    public long initDelayMs() {
+        return 5000L;
+    }
+
+    /**
+     * 最大延迟时间
+     * @return
+     */
+    public long maxDelayMs() {
+        return 60000L;
+    }
+
+    /**
+     * 是否重试消费者
+     *
+     * @return
+     */
+    public boolean isRetryConsumer() {
+        return false;
+    }
 
     /**
      * 是否正在运行
@@ -142,8 +194,45 @@ public abstract class AbstractKafkaConsumer {
                     0L,
                     TimeUnit.MILLISECONDS,
                     new ArrayBlockingQueue<>(1000),
-                    ThreadFactoryBuilder.create().setNamePrefix("kafka-consumer-thread-" + getTopic() + "-").build(),
+                    ThreadFactoryBuilder.create().setNamePrefix("kafka-consumer-thread-" + getTopic() + "-").setDaemon(true).build(),
                     new ThreadPoolExecutor.CallerRunsPolicy());
+            Runtime.getRuntime().addShutdownHook(new Thread(executorService::shutdown));
+        }
+
+        private void firstRetry(ConsumerRecord<String, String> message, String value) {
+            getLogger().info("start to retry send message to retry topic.");
+            String retryTopic = message.topic() + ".RETRY";
+            RetryMessage retryMessage = RetryMessage.builder()
+                    .topic(retryTopic)
+                    .key(message.key())
+                    .message(value)
+                    .maxRetryCount(maxRetryCount())
+                    .retryCount(1)
+                    .nextDelayMs(initDelayMs())
+                    .build();
+            kafkaProducerInstance.sendMessage(retryTopic, message.key(), JSON.toJSONString(retryMessage), initDelayMs());
+        }
+
+        private void mayNeedRetryAgain(String topic, String value) {
+            RetryMessage retryMessage = JSONObject.parseObject(value, RetryMessage.class);
+            int maxRetryCount = retryMessage.getMaxRetryCount();
+            int retryCount = retryMessage.getRetryCount();
+            getLogger().info("handle retry message...TOPIC={}, retryCount={}，maxRetryCount={}", topic, retryCount, maxRetryCount);
+            // 超过最大重试 发送到死信队列
+            int newRetryCount = retryCount + 1;
+            if (newRetryCount > maxRetryCount) {
+                getLogger().error("Have Reached the max retry count....save to DEAD QUEUE.TOPIC={}", topic);
+                String realTopic = topic.substring(0, topic.lastIndexOf(".RETRY"));
+                kafkaProducerInstance.sendMessage(realTopic + ".DLT", null, retryMessage.getMessage());
+            }
+            // 继续重试
+            else {
+                getLogger().info("keep retry again. TOPIC={},tryCount={}", topic, newRetryCount);
+                retryMessage.setRetryCount(newRetryCount);
+                long newDelayMs = RetryDelayCalculator.calculateDelay(newRetryCount, maxRetryCount, initDelayMs(), maxDelayMs());
+                retryMessage.setNextDelayMs(newDelayMs);
+                kafkaProducerInstance.sendMessage(topic, retryMessage.getKey(), JSON.toJSONString(retryMessage), newDelayMs);
+            }
         }
 
         @Override
@@ -160,19 +249,27 @@ public abstract class AbstractKafkaConsumer {
                         getLogger().info("Received records from partition: {}", tp.partition());
                         // 每个分区的消息
                         List<ConsumerRecord<String, String>> partitionRecords = records.records(tp);
-                        try {
-                            Thread.sleep(200);
-                        } catch (InterruptedException e) {
-                            getLogger().error("KafkaConsumerThread sleep error", e);
-                        }
+
                         for (ConsumerRecord<String, String> partitionRecord : partitionRecords) {
+
                             try {
                                 getLogger().info("Received message: {} from partition: {} offset: {}", partitionRecord.value(), partitionRecord.partition(), partitionRecord.offset());
+                                String value = partitionRecord.value();
                                 executorService.submit(() -> {
                                     try {
-                                        handleMessage(partitionRecord.value());
+                                        handleMessage(value);
                                     } catch (Exception e) {
                                         getLogger().error("KafkaConsumerThread handleMessage error", e);
+                                        if (isRetryConsumer()) {
+                                            getLogger().info("start to retry send message to retry topic.");
+                                            mayNeedRetryAgain(partitionRecord.topic(), value);
+                                        } else {
+                                            if (needRetry()) {
+                                                getLogger().info("start to retry send message to retry topic.");
+                                                firstRetry(partitionRecord, value);
+                                            }
+                                        }
+
                                     }
                                 });
                             } catch (Exception e) {
@@ -223,5 +320,6 @@ public abstract class AbstractKafkaConsumer {
 
         }
     }
+
 
 }

@@ -37,29 +37,33 @@ public class DemoProducer {
         properties.put(ProducerConfig.CLIENT_ID_CONFIG, "client-id-demo");
         producer = new KafkaProducer<>(properties);
         SnowflakeGenerator snowflakeGenerator = SnowflakeGenerator.getInstance();
-        while (true) {
-            // 消费消息
-            try {
-                JSONObject json = new JSONObject();
-                long id = snowflakeGenerator.generateId();
-                json.put("id", id);
-                String message = "message-demo-" + DateTimeUtil.formatDateTime_YYYY_MM_DD_HH_MM_SS(LocalDateTime.now());
-                json.put("message", message);
-                Future<RecordMetadata> future = producer.send(new ProducerRecord<>("kafka-topic-demo", String.valueOf(id), JSON.toJSONString(json)));
-                RecordMetadata recordMetadata = future.get();
-                int partition = recordMetadata.partition();
-                long offset = recordMetadata.offset();
-                log.info("发送消息成功, partition:{}, offset:{}", partition, offset);
-            } catch (Exception e) {
-                log.error("发送消息失败", e);
-            }
+//        Thread thread = new Thread(() -> {
+//            while (true) {
+                // 消费消息
+                try {
+                    JSONObject json = new JSONObject();
+                    long id = snowflakeGenerator.generateId();
+                    json.put("id", id);
+                    String message = "message-demo-" + DateTimeUtil.formatDateTime_YYYY_MM_DD_HH_MM_SS(LocalDateTime.now());
+                    json.put("message", message);
+                    Future<RecordMetadata> future = producer.send(new ProducerRecord<>("kafka-topic-demo", String.valueOf(id), JSON.toJSONString(json)));
+                    RecordMetadata recordMetadata = future.get();
+                    int partition = recordMetadata.partition();
+                    long offset = recordMetadata.offset();
+                    log.info("发送消息成功, partition:{}, offset:{}", partition, offset);
+                } catch (Exception e) {
+                    log.error("发送消息失败", e);
+                }
 
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                log.error("线程休眠失败", e);
-            }
+//                try {
+//                    Thread.sleep(60000);
+//                } catch (InterruptedException e) {
+//                    log.error("线程休眠失败", e);
+//                }
 
-        }
+//            }
+//        });
+//        thread.start();
+
     }
 }
