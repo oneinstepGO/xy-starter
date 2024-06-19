@@ -14,8 +14,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.Properties;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 @Component
@@ -24,8 +22,6 @@ public class DemoProducer {
 
     @Resource
     private CustomKafkaProperties kafkaProperties;
-
-    private final ExecutorService executorService = Executors.newFixedThreadPool(3);
 
     @PostConstruct
     public void init() {
@@ -37,29 +33,25 @@ public class DemoProducer {
         properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         properties.put(ProducerConfig.CLIENT_ID_CONFIG, "client-id-demo");
         producer = new KafkaProducer<>(properties);
-        for (int i = 0; i < 3; i++) {
-            executorService.submit(() -> {
-                while (true) {
-                    // 消费消息
-                    try {
-                        String message = "message-demo-" + DateTimeUtil.formatDateTime_YYYY_MM_DD_HH_MM_SS(LocalDateTime.now());
-                        Future<RecordMetadata> future = producer.send(new ProducerRecord<>("kafka-topic-demo", message, message));
-                        RecordMetadata recordMetadata = future.get();
-                        int partition = recordMetadata.partition();
-                        long offset = recordMetadata.offset();
-                        log.info("发送消息成功, partition:{}, offset:{}", partition, offset);
-                    } catch (Exception e) {
-                        log.error("发送消息失败", e);
-                    }
+        while (true) {
+            // 消费消息
+            try {
+                String message = "message-demo-" + DateTimeUtil.formatDateTime_YYYY_MM_DD_HH_MM_SS(LocalDateTime.now());
+                Future<RecordMetadata> future = producer.send(new ProducerRecord<>("kafka-topic-demo", message, message));
+                RecordMetadata recordMetadata = future.get();
+                int partition = recordMetadata.partition();
+                long offset = recordMetadata.offset();
+                log.info("发送消息成功, partition:{}, offset:{}", partition, offset);
+            } catch (Exception e) {
+                log.error("发送消息失败", e);
+            }
 
-                    try {
-                        Thread.sleep(3000);
-                    } catch (InterruptedException e) {
-                        log.error("线程休眠失败", e);
-                    }
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                log.error("线程休眠失败", e);
+            }
 
-                }
-            });
         }
     }
 }
