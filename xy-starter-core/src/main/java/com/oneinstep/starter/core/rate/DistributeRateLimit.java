@@ -7,6 +7,8 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface RateLimit {
+public @interface DistributeRateLimit {
+    String key() default ""; // 限流的key
     int value(); // 每秒允许的最大访问次数
+    int algorithm() default 1; // 限流类型，1-令牌桶，2-漏桶
 }

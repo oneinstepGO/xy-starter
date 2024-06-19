@@ -66,6 +66,9 @@ xy:
       filterUrls: /admin/auth/**,/admin/sys/adminUser/test
       wrongPasswordTimes: 5
       wrongPasswordLockTimeSeconds: 60
+    kafka:
+      bootstrapServers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+      enable: true
 
 springdoc:
   swagger-ui:
