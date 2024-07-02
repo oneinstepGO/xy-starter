@@ -54,6 +54,7 @@ public class ThreadPoolConfig {
 
 
         } catch (InterruptedException e) {
+            log.warn("线程池 {} 关闭时发生异常", threadPoolProperties.getNamePrefix(), e);
             commonThreadPool.shutdownNow();
             Thread.currentThread().interrupt();
         }

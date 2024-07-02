@@ -26,6 +26,7 @@ public class DelayedMessageConsumer {
     private RedissonClient redissonClient;
     @Resource
     private KafkaProducerInstance kafkaProducerInstance;
+    private static final int SHUTDOWN_TIMEOUT = 30;
     /**
      * 是否正在运行
      */
@@ -41,26 +42,36 @@ public class DelayedMessageConsumer {
                 new SynchronousQueue<>(),
                 new ThreadFactoryBuilder().setNamePrefix("delayedMessageThreadPool-%d").setDaemon(true).build());
         executorService.execute(this::consume);
-        Runtime.getRuntime().addShutdownHook(new Thread(executorService::shutdown));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            log.info("关闭线程池 delayedMessageThreadPool");
+            executorService.shutdown();
+            try {
+                if (!executorService.awaitTermination(SHUTDOWN_TIMEOUT, TimeUnit.SECONDS)) {
+                    executorService.shutdownNow();
+                    if (!executorService.awaitTermination(SHUTDOWN_TIMEOUT, TimeUnit.SECONDS)) {
+                        log.error("线程池 delayedMessageThreadPool 未能正常关闭");
+                    }
+                }
+
+
+            } catch (InterruptedException e) {
+                log.warn("线程池 delayedMessageThreadPool 关闭时发生异常" , e);
+                executorService.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
+        }));
     }
 
     public void consume() {
         RBlockingQueue<String> blockingDeque = redissonClient.getBlockingQueue("delayedMessageQueue");
         while (isRunning.get()) {
             try {
-                String message = blockingDeque.poll(100, TimeUnit.MILLISECONDS);
+                String message = blockingDeque.take();
                 if (StringUtils.isNotBlank(message)) {
                     DelayedMessage delayedMessage = JSONObject.parseObject(message, DelayedMessage.class);
                     if (delayedMessage != null) {
                         log.info("received the delayed message...message={}, execTime={}", delayedMessage.getMessage(), delayedMessage.getExecTime());
                         kafkaProducerInstance.sendMessage(delayedMessage.getTopic(), delayedMessage.getKey(), delayedMessage.getMessage());
-                    }
-                } else {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        log.error("thread sleep error.", e);
-                        Thread.currentThread().interrupt();
                     }
                 }
             }
