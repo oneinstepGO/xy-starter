@@ -41,7 +41,7 @@
         <powermock.version>2.0.0</powermock.version>
         <googleauth.version>1.5.0</googleauth.version>
         <spring-kafka.version>3.2.1</spring-kafka.version>
-        <junit-platform.version>1.8.2</junit-platform.version>
+        <junit.jupiter.version>5.10.2</junit.jupiter.version>
     </properties>
 
     <dependencyManagement>
@@ -51,6 +51,14 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
                 <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>${junit.jupiter.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -197,33 +205,6 @@
                 <version>${poi.version}</version>
             </dependency>
 
-            <!-- 单测工具  start-->
-            <dependency>
-                <groupId>org.powermock</groupId>
-                <artifactId>powermock-api-mockito2</artifactId>
-                <version>${powermock.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.powermock</groupId>
-                <artifactId>powermock-module-junit4</artifactId>
-                <version>${powermock.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.junit.platform</groupId>
-                <artifactId>junit-platform-launcher</artifactId>
-                <version>${junit-platform.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.junit.platform</groupId>
-                <artifactId>junit-platform-commons</artifactId>
-                <version>${junit-platform.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <!-- 单测工具  end -->
-
         </dependencies>
     </dependencyManagement>
 
@@ -282,7 +263,18 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
-
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <includes>
+                        <include>**/Test*.java</include>
+                        <include>**/*Tests.java</include>
+                        <include>**/*Test.java</include>
+                    </includes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
