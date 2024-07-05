@@ -5,10 +5,6 @@
 
     <property name="CONSOLE_LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{reqId}] %-5level %logger{50} - %msg%n"/>
 
-    <root level="info">
-        <appender-ref ref="CONSOLE" />
-    </root>
-
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>${CONSOLE_LOG_PATTERN}</pattern>
@@ -16,7 +12,16 @@
         </encoder>
     </appender>
 
-    <logger name="com.oneinstep" level="debug"/>
+    <!-- Define the AsyncAppender -->
+    <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>10000</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <appender-ref ref="CONSOLE" />
+    </appender>
+
+    <root level="info">
+        <appender-ref ref="ASYNC" />
+    </root>
 
     <logger name="org.springframework.security" level="debug"/>
     <logger name="springfox.documentation.swagger2" level="off"/>
