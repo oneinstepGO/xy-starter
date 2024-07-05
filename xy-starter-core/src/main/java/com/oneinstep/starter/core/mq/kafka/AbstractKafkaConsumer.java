@@ -194,7 +194,7 @@ public abstract class AbstractKafkaConsumer {
                     0L,
                     TimeUnit.MILLISECONDS,
                     new ArrayBlockingQueue<>(1000),
-                    ThreadFactoryBuilder.create().setNamePrefix("kafka-consumer-thread-" + getTopic() + "-").setDaemon(true).build(),
+                    ThreadFactoryBuilder.create().setNamePrefix("kafka-consumer-thread-" + getTopic() + "-").build(),
                     new ThreadPoolExecutor.CallerRunsPolicy());
             Runtime.getRuntime().addShutdownHook(new Thread(executorService::shutdown));
         }

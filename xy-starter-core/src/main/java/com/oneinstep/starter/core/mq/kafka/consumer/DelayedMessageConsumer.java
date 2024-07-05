@@ -47,7 +47,7 @@ public class DelayedMessageConsumer {
                 0,
                 TimeUnit.MILLISECONDS,
                 new SynchronousQueue<>(),
-                new ThreadFactoryBuilder().setNamePrefix("delayedMessageThreadPool-%d").setDaemon(true).build());
+                new ThreadFactoryBuilder().setNamePrefix("delayedMessageThreadPool-%d").build());
         executorService.execute(this::consume);
     }
 
