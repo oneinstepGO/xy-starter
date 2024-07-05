@@ -54,9 +54,9 @@ xy:
   starter:
     thread-pool:
       corePoolSize: 10
-      maximumPoolSize: 500
+      maximumPoolSize: 16
       keepAliveTime: 60
-      queueCapacity: 1000
+      queueCapacity: 218
       namePrefix: admin-thread-pool
     scheduler:
       poolSize: 500

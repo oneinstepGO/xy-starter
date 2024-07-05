@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import com.oneinstep.starter.core.mq.kafka.bean.RetryMessage;
 import com.oneinstep.starter.core.mq.kafka.config.CustomKafkaProperties;
 import com.oneinstep.starter.core.mq.kafka.producer.KafkaProducerInstance;
+import com.oneinstep.starter.core.utils.ExecutorServiceUtil;
 import com.oneinstep.starter.core.utils.RetryDelayCalculator;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
@@ -117,6 +118,7 @@ public abstract class AbstractKafkaConsumer {
 
     /**
      * 最大延迟时间
+     *
      * @return
      */
     public long maxDelayMs() {
@@ -196,7 +198,12 @@ public abstract class AbstractKafkaConsumer {
                     new ArrayBlockingQueue<>(1000),
                     ThreadFactoryBuilder.create().setNamePrefix("kafka-consumer-thread-" + getTopic() + "-").build(),
                     new ThreadPoolExecutor.CallerRunsPolicy());
-            Runtime.getRuntime().addShutdownHook(new Thread(executorService::shutdown));
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                getLogger().info("Shutdown hook is called.");
+                isRunning.set(false);
+                kafkaConsumer.wakeup();
+                ExecutorServiceUtil.shutdownExecutorService(executorService, "kafka-consumer-thread", getLogger());
+            }));
         }
 
         private void firstRetry(ConsumerRecord<String, String> message, String value) {
