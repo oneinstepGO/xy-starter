@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -35,28 +36,28 @@ public class ThreadPoolConfig {
                 TimeUnit.SECONDS,
                 new LinkedBlockingQueue<>(threadPoolProperties.getQueueCapacity()),
                 ThreadFactoryBuilder.create().setNamePrefix(threadPoolProperties.getNamePrefix() + "-").build(),
-                new ThreadPoolExecutor.AbortPolicy());
+                new ThreadPoolExecutor.CallerRunsPolicy());
         return commonThreadPool;
     }
 
     @PreDestroy
     public void destroy() {
+        if (commonThreadPool == null) {
+            return;
+        }
         log.info("关闭线程池 {}", threadPoolProperties.getNamePrefix());
         commonThreadPool.shutdown();
-
         try {
             if (!commonThreadPool.awaitTermination(SHUTDOWN_TIMEOUT, TimeUnit.SECONDS)) {
-                commonThreadPool.shutdownNow();
-                if (!commonThreadPool.awaitTermination(SHUTDOWN_TIMEOUT, TimeUnit.SECONDS)) {
-                    log.error("线程池 {} 未能正常关闭", threadPoolProperties.getNamePrefix());
-                }
+                List<Runnable> canceledRunnable = commonThreadPool.shutdownNow();
+                log.warn("线程池 {} 未能正常关闭，剩余任务数：{}", threadPoolProperties.getNamePrefix(), canceledRunnable.size());
             }
-
-
         } catch (InterruptedException e) {
-            log.warn("线程池 {} 关闭时发生异常", threadPoolProperties.getNamePrefix(), e);
+            log.error("线程池 {} 关闭异常", threadPoolProperties.getNamePrefix(), e);
             commonThreadPool.shutdownNow();
             Thread.currentThread().interrupt();
+        } finally {
+            commonThreadPool = null;
         }
     }
 
