@@ -101,7 +101,7 @@ public abstract class AbstractKafkaConsumer {
     /**
      * 最大重试次数
      *
-     * @return
+     * @return 最大重试次数
      */
     public int maxRetryCount() {
         return 3;
@@ -110,7 +110,7 @@ public abstract class AbstractKafkaConsumer {
     /**
      * 初始化延迟时间
      *
-     * @return
+     * @return 初始化延迟时间
      */
     public long initDelayMs() {
         return 5000L;
@@ -119,7 +119,7 @@ public abstract class AbstractKafkaConsumer {
     /**
      * 最大延迟时间
      *
-     * @return
+     * @return 最大延迟时间
      */
     public long maxDelayMs() {
         return 60000L;
@@ -128,7 +128,7 @@ public abstract class AbstractKafkaConsumer {
     /**
      * 是否重试消费者
      *
-     * @return
+     * @return 是否重试消费者
      */
     public boolean isRetryConsumer() {
         return false;
@@ -172,22 +172,13 @@ public abstract class AbstractKafkaConsumer {
                 @Override
                 public void onPartitionsRevoked(Collection<TopicPartition> collection) {
                     getLogger().info("Lost partitions in re balance. Committing current offsets: {}", offsets);
-                    synchronized (offsets) {
-                        if (!offsets.isEmpty()) {
-                            kafkaConsumer.commitSync(offsets);
-                            offsets.clear();
-                        }
-                    }
+                    commitOffsets();
                 }
 
                 @Override
                 public void onPartitionsAssigned(Collection<TopicPartition> collection) {
                     getLogger().info("Partitions assigned in re balance: {}", collection);
-                    synchronized (offsets) {
-                        if (!offsets.isEmpty()) {
-                            offsets.clear();
-                        }
-                    }
+                    offsets.clear();
                 }
             });
             executorService = new ThreadPoolExecutor(
@@ -258,55 +249,14 @@ public abstract class AbstractKafkaConsumer {
                         List<ConsumerRecord<String, String>> partitionRecords = records.records(tp);
 
                         for (ConsumerRecord<String, String> partitionRecord : partitionRecords) {
-
-                            try {
-                                getLogger().info("Received message: {} from partition: {} offset: {}", partitionRecord.value(), partitionRecord.partition(), partitionRecord.offset());
-                                String value = partitionRecord.value();
-                                executorService.submit(() -> {
-                                    try {
-                                        handleMessage(value);
-                                    } catch (Exception e) {
-                                        getLogger().error("KafkaConsumerThread handleMessage error", e);
-                                        if (isRetryConsumer()) {
-                                            getLogger().info("start to retry send message to retry topic.");
-                                            mayNeedRetryAgain(partitionRecord.topic(), value);
-                                        } else {
-                                            if (needRetry()) {
-                                                getLogger().info("start to retry send message to retry topic.");
-                                                firstRetry(partitionRecord, value);
-                                            }
-                                        }
-
-                                    }
-                                });
-                            } catch (Exception e) {
-                                getLogger().error("KafkaConsumerThread handleMessage error", e);
-                            }
+                            handleRecord(partitionRecord);
                         }
 
                         long lastConsumedOffset = partitionRecords.get(partitionRecords.size() - 1).offset();
-
-                        synchronized (offsets) {
-                            if (!offsets.containsKey(tp)) {
-                                offsets.put(tp, new OffsetAndMetadata(lastConsumedOffset + 1));
-                            } else {
-                                long position = offsets.get(tp).offset();
-                                if (lastConsumedOffset + 1 > position) {
-                                    offsets.put(tp, new OffsetAndMetadata(lastConsumedOffset + 1));
-                                }
-                            }
-                        }
-
+                        updateOffsets(tp, lastConsumedOffset);
                     }
 
-                    synchronized (offsets) {
-                        if (!offsets.isEmpty()) {
-                            getLogger().info("Committing offsets: {}", offsets);
-                            kafkaConsumer.commitSync(offsets);
-                            offsets.clear();
-                        }
-                    }
-
+                    commitOffsets();
                 }
             } catch (WakeupException we) {
                 // ignore for shutdown
@@ -324,9 +274,67 @@ public abstract class AbstractKafkaConsumer {
                     kafkaConsumer.close();
                 }
             }
+        }
 
+        private void handleRecord(ConsumerRecord<String, String> consumerRecord) {
+            try {
+                getLogger().info("Received message: {} from partition: {} offset: {}", consumerRecord.value(), consumerRecord.partition(), consumerRecord.offset());
+                String value = consumerRecord.value();
+                executorService.submit(() -> {
+                    try {
+                        handleMessage(value);
+                    } catch (Exception e) {
+                        getLogger().error("KafkaConsumerThread handleMessage error", e);
+                        handleRetry(consumerRecord, value);
+                    }
+                });
+            } catch (Exception e) {
+                getLogger().error("KafkaConsumerThread handleRecord error", e);
+            }
+        }
+
+        /**
+         * 处理重试
+         *
+         * @param consumerRecord 消息
+         * @param value          消息内容
+         */
+        private void handleRetry(ConsumerRecord<String, String> consumerRecord, String value) {
+            if (isRetryConsumer()) {
+                getLogger().info("start to retry send message to retry topic.");
+                mayNeedRetryAgain(consumerRecord.topic(), value);
+            } else {
+                if (needRetry()) {
+                    getLogger().info("start to retry send message to retry topic.");
+                    firstRetry(consumerRecord, value);
+                }
+            }
+        }
+
+        /**
+         * 更新偏移量
+         *
+         * @param tp                 分区
+         * @param lastConsumedOffset 最后消费的偏移量
+         */
+        private void updateOffsets(TopicPartition tp, long lastConsumedOffset) {
+            offsets.compute(tp, (k, v) -> {
+                if (v == null || lastConsumedOffset + 1 > v.offset()) {
+                    return new OffsetAndMetadata(lastConsumedOffset + 1);
+                }
+                return v;
+            });
+        }
+
+        /**
+         * 提交偏移量
+         */
+        private void commitOffsets() {
+            if (!offsets.isEmpty()) {
+                getLogger().info("Committing offsets: {}", offsets);
+                kafkaConsumer.commitSync(offsets);
+                offsets.clear();
+            }
         }
     }
-
-
 }

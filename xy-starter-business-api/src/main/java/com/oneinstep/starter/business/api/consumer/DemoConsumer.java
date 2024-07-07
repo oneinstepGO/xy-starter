@@ -38,7 +38,6 @@ public class DemoConsumer extends AbstractKafkaConsumer {
             }
 
             Thread.sleep(500);
-            int i = 1 / 0;
             redissonClient.getSet("already-consumed").add(id);
         } catch (InterruptedException e) {
             log.error("处理消息异常", e);
