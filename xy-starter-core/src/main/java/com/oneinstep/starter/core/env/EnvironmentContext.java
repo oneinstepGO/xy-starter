@@ -1,4 +1,4 @@
-package com.oneinstep.starter.core.environment;
+package com.oneinstep.starter.core.env;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;

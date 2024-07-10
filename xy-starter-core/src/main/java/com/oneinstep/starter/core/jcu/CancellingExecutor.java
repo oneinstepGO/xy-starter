@@ -1,4 +1,4 @@
-package com.oneinstep.starter.core.future;
+package com.oneinstep.starter.core.jcu;
 
 import java.util.concurrent.*;
 

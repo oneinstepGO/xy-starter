@@ -1,4 +1,4 @@
-package com.oneinstep.starter.core.future;
+package com.oneinstep.starter.core.jcu;
 
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
@@ -10,11 +10,6 @@ import java.util.concurrent.RunnableFuture;
  * @param <T> the type of the task
  */
 public abstract class AbsCancellableTask<T> implements CancellableTask<T> {
-
-    /**
-     * Cancel the task
-     */
-    public abstract void cancel();
 
     @Override
     public RunnableFuture<T> newTask() {

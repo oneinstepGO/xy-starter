@@ -1,4 +1,4 @@
-package com.oneinstep.starter.core.cache;
+package com.oneinstep.starter.core.jcu;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
