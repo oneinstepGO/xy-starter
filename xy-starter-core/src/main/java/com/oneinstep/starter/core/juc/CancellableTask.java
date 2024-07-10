@@ -1,4 +1,4 @@
-package com.oneinstep.starter.core.jcu;
+package com.oneinstep.starter.core.juc;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.RunnableFuture;

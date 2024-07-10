@@ -1,4 +1,4 @@
-package com.oneinstep.starter.core.jcu;
+package com.oneinstep.starter.core.juc;
 
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
