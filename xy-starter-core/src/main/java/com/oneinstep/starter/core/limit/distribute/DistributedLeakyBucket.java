@@ -1,4 +1,4 @@
-package com.oneinstep.starter.core.rate;
+package com.oneinstep.starter.core.limit.distribute;
 
 import org.redisson.api.RScript;
 import org.redisson.api.RedissonClient;
