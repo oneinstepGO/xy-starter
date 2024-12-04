@@ -1,0 +1,91 @@
+server:
+  port: 8000
+  tomcat:
+    threads:
+      max: 5000
+      min-spare: 200
+    accept-count: 10000
+    max-connections: 10000
+    connection-timeout: 600000
+
+spring:
+  main:
+    allow-circular-references: true
+  application:
+    name: xy-starter-admin
+  servlet:
+    multipart:
+      #设置单个数据大小
+      max-file-size: 2MB
+      #设置总上传数据的大小
+      max-request-size: 4MB
+  datasource:
+    url: jdbc:mysql://${DB_URL:localhost}/${DB_NAME:xy-starter}?allowMultiQueries=true&useSSL=false&useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2B8&nullCatalogMeansCurrent=true&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME:root}
+    password: ${DB_PWD:root123!}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      minimum-idle: 10
+      maximum-pool-size: 200
+      idle-timeout: 25000
+      auto-commit: true
+      connection-test-query: SELECT 1
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: 6379
+      #      password: ${REDIS_PWD:}
+      database: 0
+      jedis:
+        pool:
+          enabled: true
+          max-active: 50
+          max-idle: 50
+          min-idle: 0
+          time-between-eviction-runs: 30000
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+
+xy:
+  starter:
+    thread-pool:
+      corePoolSize: 10
+      maximumPoolSize: 16
+      keepAliveTime: 60
+      queueCapacity: 218
+      namePrefix: admin-thread-pool
+    scheduler:
+      poolSize: 500
+    auth:
+      jwtSecret: ub45svardn957gptyq3yfnw2utfovwqvtszf84kloxhrm2m7ld8ktu6i5mnln3uq
+      jwtExpiration: 43200000
+      filterUrls: /admin/auth/**,/admin/sys/adminUser/test
+      wrongPasswordTimes: 5
+      wrongPasswordLockTimeSeconds: 60
+    kafka:
+      bootstrapServers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+      enable: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+  group-configs:
+    - group: 'default'
+      paths-to-match: '/**'
+      packages-to-scan: com.oneinstep
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+
+logging:
+  config: classpath:logback/logback-${spring.profiles.active}.xml
+

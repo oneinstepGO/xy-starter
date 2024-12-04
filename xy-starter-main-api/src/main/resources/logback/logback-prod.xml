@@ -1,0 +1,62 @@
+<configuration scan="true" scanPeriod="60 seconds" debug="false">
+    <property name="PROJECT_PATH" value="/opt/projects/logs/"/>
+    <property name="LOG_FILE_MAX_HISTORY" value="90"/>
+    <property name="LOG_FILE_MAX_SIZE" value="200MB"/>
+
+
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+
+    <appender name="DefaultFile"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <append>true</append>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{reqId}] %-5level %logger{50} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <file>${PROJECT_PATH}/info.log</file>
+
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>${logging.level}</level>
+        </filter>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${PROJECT_PATH}/%d{yyyy-MM}/info-%d{yyyy-MM-dd}-%i.log.gz</fileNamePattern>
+            <maxFileSize>${LOG_FILE_MAX_SIZE}</maxFileSize>
+            <maxHistory>${LOG_FILE_MAX_HISTORY}</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- Define the AsyncAppender -->
+    <appender name="ASYNC_CONSOLE" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>10000</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <appender-ref ref="CONSOLE"/>
+    </appender>
+
+    <!-- Define the AsyncAppender -->
+    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>10000</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <appender-ref ref="DefaultFile"/>
+    </appender>
+
+    <root level="info">
+        <appender-ref ref="ASYNC_CONSOLE"/>
+        <appender-ref ref="ASYNC_FILE"/>
+    </root>
+
+    <logger name="com.oneinstep" level="info"/>
+
+    <logger name="springfox.documentation.swagger2" level="off"/>
+    <logger name="io.swagger.models.parameters" level="off"/>
+    <logger name="springfox.documentation.swagger.readers.operation.OperationImplicitParameterReader" level="off"/>
+    <logger name="springfox.documentation.spring.web.readers.operation" level="off"/>
+</configuration>

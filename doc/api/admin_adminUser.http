@@ -1,0 +1,30 @@
+### 管理员列表
+GET http://127.0.0.1:8000/admin/sys/sysUser/list?pageNo=1&pageSize=10
+Authorization: eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMDAwMDAwMCIsInN5c3RlbVR5cGUiOjEsImlhdCI6MTcxNTkwMDk1NSwiZXhwIjoxNzE1OTQ0MTU1fQ.gwSXMovhTuq8v3qB9kgNz0fvotYFLTfm8Ymnn0LbnyC5iNt3W4sxSdnOtN7tXFSj
+
+
+### 保存管理员
+POST http://127.0.0.1:8000/admin/sys/sysUser/save
+Authorization: eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwic3lzdGVtVHlwZSI6MSwiaWF0IjoxNzE1OTAwNzAzLCJleHAiOjE3MTU5NDM5MDN9.HLYkQPiONP9r8KaMiZfjarLxQx8X-KpijHmcus0r-Nesh_w2MDZrsc04DJCpyHH2
+Content-Type: application/json
+
+{
+  "username": "xiaomei",
+  "nickName": "小美",
+  "password": "123456",
+  "email": "123456@qq.com",
+  "mobile": "12345699999",
+  "loginWhiteList": "",
+  "roleIds": [
+    1
+  ]
+}
+
+### 删除管理员
+POST http://127.0.0.1:8000/admin/sys/sysUser/delete
+Authorization: eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMDAwMDAwMCIsInN5c3RlbVR5cGUiOjEsImlhdCI6MTcxNTkwMDk1NSwiZXhwIjoxNzE1OTQ0MTU1fQ.gwSXMovhTuq8v3qB9kgNz0fvotYFLTfm8Ymnn0LbnyC5iNt3W4sxSdnOtN7tXFSj
+Content-Type: application/json
+
+{
+  "userId": 2
+}

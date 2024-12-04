@@ -1,0 +1,33 @@
+<configuration scan="true" scanPeriod="60 seconds" debug="false">
+
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+
+    <property name="CONSOLE_LOG_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{reqId}] %-5level %logger{50} - %msg%n"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- Define the AsyncAppender -->
+    <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>10000</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <appender-ref ref="CONSOLE"/>
+    </appender>
+
+    <root level="info">
+        <appender-ref ref="ASYNC"/>
+    </root>
+
+    <logger name="org.springframework.security" level="debug"/>
+    <logger name="springfox.documentation.swagger2" level="off"/>
+    <logger name="io.swagger.models.parameters" level="off"/>
+    <logger name="springfox.documentation.swagger.readers.operation.OperationImplicitParameterReader" level="off"/>
+    <logger name="springfox.documentation.spring.web.readers.operation" level="off"/>
+
+</configuration>

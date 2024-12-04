@@ -1,0 +1,18 @@
+### 账户信息
+GET http://127.0.0.1:8001/api/user/info
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMDAwMDAwIiwic3lzdGVtVHlwZSI6MiwiaWF0IjoxNzE1OTE2NDkwLCJleHAiOjE3MTU5NTk2OTB9.Ww2JRhFH3f36OqUTYZhCTnpBCq0-03jsz4Nzvg9lFxy-c7XJrENpBS0kAaSyIVjm
+
+
+### 注册
+POST http://localhost:8001/api/user/register
+Content-Type: application/json
+
+{
+  "gender": "M",
+  "birthday": "1990-01-01",
+  "mobile": "18663569845",
+  "loginPassword": "123456",
+  "verifyCode": "1234"
+}
+

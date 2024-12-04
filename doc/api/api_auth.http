@@ -1,0 +1,26 @@
+### 用户端登录
+POST http://127.0.0.1:8001/api/auth/login
+Content-Type: application/json
+
+{
+  "mobile": "18663569845",
+  "password": "123456",
+  "loginMethod": "MOBILE_PASSWORD"
+}
+
+
+### 用户端登出
+POST http://127.0.0.1:8001/api/auth/logout
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMDAwMDAwIiwic3lzdGVtVHlwZSI6MiwiaWF0IjoxNzE1MjM1NTMwLCJleHAiOjE3MTUyNzg3MzB9.PDroBwSFFOnw3hZLv49l8pEmIjfLm0ssqoJAGyTT7nAPRIZxQ3pjqOGdDcmCLjM1
+
+
+### 用户端修改密码
+POST http://127.0.0.1:8001/api/auth/changeOwnPassword
+Authorization: eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMDAwMDAwIiwic3lzdGVtVHlwZSI6MiwiaWF0IjoxNzE1MjM1ODQ2LCJleHAiOjE3MTUyNzkwNDZ9.rCKx7JPn_oBozXEcIN7lnJvhwOPuTo72i7PUEZoAnq9ZKS1zxeqgnTZsCgUjIVaI
+Content-Type: application/json
+
+{
+  "oldPassword": "123456",
+  "newPassword": "1234"
+}

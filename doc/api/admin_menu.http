@@ -1,0 +1,8 @@
+### 用户所拥有的菜单和权限列表
+GET http://127.0.0.1:8000/admin/sys/menu/nav
+Authorization: eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwic3lzdGVtVHlwZSI6MSwiaWF0IjoxNzE1MjM2NzI3LCJleHAiOjE3MTUyNzk5Mjd9.tCPHIp-OmgIjtk1I8SgWNsVoy01FlMzVFkfnh4Ez3V88sEAik4biUa4S5_zj2G3s
+
+
+### 所有菜单及权限列表(用于新建、修改角色时 获取菜单的信息)
+GET http://127.0.0.1:8000/admin/sys/menu/listAllMenuAndPerm
+Authorization: eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwic3lzdGVtVHlwZSI6MSwiaWF0IjoxNzE1MjM2NzI3LCJleHAiOjE3MTUyNzk5Mjd9.tCPHIp-OmgIjtk1I8SgWNsVoy01FlMzVFkfnh4Ez3V88sEAik4biUa4S5_zj2G3s

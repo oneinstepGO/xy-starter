@@ -1,0 +1,61 @@
+### 后台系统登录
+POST http://localhost:8000/admin/auth/adminLogin
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin"
+}
+
+
+### 后台系统获取账户信息
+GET http://127.0.0.1:8000/admin/account/info
+Authorization: eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwic3lzdGVtVHlwZSI6MSwiaWF0IjoxNzE1MjM2NjE3LCJleHAiOjE3MTUyNzk4MTd9.g7LI3XtJ7beS51M3vzm6kiyuHdzBLuZNrNo6bAGUM-sqhp9MEZg9vW9ceWuVFvg-
+Content-Type: application/json
+
+
+### 后台系统登出
+POST http://127.0.0.1:8000/admin/auth/adminLogout
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwic3lzdGVtVHlwZSI6MSwiaWF0IjoxNzE1MjM2NjE3LCJleHAiOjE3MTUyNzk4MTd9.g7LI3XtJ7beS51M3vzm6kiyuHdzBLuZNrNo6bAGUM-sqhp9MEZg9vW9ceWuVFvg-
+
+
+### 后台系统修改密码
+POST http://127.0.0.1:8000/admin/auth/changeOwnPassword
+Authorization: eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTcxNTAxNzM4MSwiZXhwIjoxNzE1MDYwNTgxfQ.NncWP2XWPAuQMJRf5FrcEbaaitpLcTxgnIkRTC7I5hlWZ7hzKUc2MbX4SOU8ck8d
+Content-Type: application/json
+
+{
+  "oldPassword": "admin2",
+  "newPassword": "admin"
+}
+
+
+### 后台系统生成谷歌验证码
+GET http://127.0.0.1:8000/admin/googleAuth/genGoogleAuth
+Authorization: eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwic3lzdGVtVHlwZSI6MSwiaWF0IjoxNzE1MjM2NzI3LCJleHAiOjE3MTUyNzk5Mjd9.tCPHIp-OmgIjtk1I8SgWNsVoy01FlMzVFkfnh4Ez3V88sEAik4biUa4S5_zj2G3s
+
+
+### 后台系统验证并绑定谷歌验证码
+POST http://127.0.0.1:8000/admin/googleAuth/validateAndBindCode
+Content-Type: application/json
+
+{
+  "code": 123456
+}
+
+
+### 后台系统重置自己谷歌验证码
+POST http://127.0.0.1:8000/admin/auth/resetOwnGoogleSecret
+Authorization: eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxIiwic3lzdGVtVHlwZSI6MSwiaWF0IjoxNzE1MjM2NzI3LCJleHAiOjE3MTUyNzk5Mjd9.tCPHIp-OmgIjtk1I8SgWNsVoy01FlMzVFkfnh4Ez3V88sEAik4biUa4S5_zj2G3s
+
+
+### 后台系统重置他人谷歌验证码
+POST http://127.0.0.1:8000/admin/auth/resetOtherGoogleSecret
+Authorization: eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTcxNTAxNzUzNCwiZXhwIjoxNzE1MDYwNzM0fQ.5qK2Qd_qTtQ9JwXOWnE2TFsdzadGKU-4jvryhi7RCHrJ-geap4Xz5O4YFnr-pRHA
+Content-Type: application/json
+
+{
+  "username": "admin"
+}
+

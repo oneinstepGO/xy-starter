@@ -1,0 +1,4 @@
+xy:
+  starter:
+    auth:
+      filterUrls: /api/auth/**,/api/user/register,/api/test/**
